@@ -135,6 +135,14 @@ after_initialize do
         end
       end
 
+      # Skip translations for a specific category is configured
+      if SiteSetting.translator_skip_category_id
+        category_id_list = SiteSetting.translator_skip_category_id.split(",").collect{ |s| s.to_i }
+        if category_id_list.include? category_id
+          return false
+        end
+      end
+
       if SiteSetting.translator_enabled_for_guests or scope.current_user.present?
         # Detect lang if the user is signed in or translation enabled for guests
         detected_lang = post_custom_fields[::DiscourseTranslator::DETECTED_LANG_CUSTOM_FIELD]

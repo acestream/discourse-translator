@@ -2,6 +2,7 @@ en:
   site_settings:
     translator_enabled: "Allow inline translation of posts."
     translator_enabled_for_guests: "Allow translation for guests."
+    translator_skip_category_id: "Comma separated list of category ids to skip translations for."
     translator: "The provider of the translation service."
     translator_azure_subscription_key: "Azure Subscription Key"
     translator_azure_region: "Azure Region"

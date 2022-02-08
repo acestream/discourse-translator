@@ -5,6 +5,9 @@ plugins:
   translator_enabled_for_guests:
     default: false
     client: true
+  translator_skip_category_id:
+    default: ''
+    client: true
   translator:
     default: 'Microsoft'
     client: true
