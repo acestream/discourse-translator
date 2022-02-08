@@ -17,11 +17,7 @@ function translatePost(post) {
 
 function initializeTranslation(api) {
   const siteSettings = api.container.lookup("site-settings:main");
-  const currentUser = api.getCurrentUser();
 
-  if (!currentUser) {
-    return;
-  }
   if (!siteSettings.translator_enabled) {
     return;
   }
@@ -55,6 +51,13 @@ function initializeTranslation(api) {
   });
 
   api.attachWidgetAction("post-menu", "translate", function () {
+    // If translation is disabled for guests we  ask user to sign in on click.
+    const currentUser = api.getCurrentUser();
+    if(!siteSettings.translator_enabled_for_guests && !currentUser) {
+      this.sendWidgetAction("showLogin");
+      return;
+    }
+
     const state = this.state;
     state.isTranslated = true;
     state.isTranslating = true;

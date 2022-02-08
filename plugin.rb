@@ -3,8 +3,8 @@
 # name: discourse-translator
 # about: Provides inline translation of posts.
 # version: 0.3.0
-# authors: Alan Tan
-# url: https://github.com/discourse/discourse-translator
+# authors: Alan Tan, Ace Stream
+# url: https://github.com/acestream/discourse-translator
 
 gem 'aws-sdk-translate', '1.35.0', require: false
 
@@ -30,12 +30,16 @@ after_initialize do
 
   require_dependency "application_controller"
   class DiscourseTranslator::TranslatorController < ::ApplicationController
-    before_action :ensure_logged_in
 
     def translate
       raise PluginDisabled if !SiteSetting.translator_enabled
 
-      if !current_user.staff?
+      if !SiteSetting.translator_enabled_for_guests
+        ensure_logged_in
+      end
+
+      if current_user and !current_user.staff?
+        # Limit requests for non-staff users
         RateLimiter.new(current_user, "translate_post", SiteSetting.max_translations_per_minute, 1.minute).performed!
       end
 
@@ -122,13 +126,28 @@ after_initialize do
     def can_translate
       return false if !SiteSetting.translator_enabled
 
-      detected_lang = post_custom_fields[::DiscourseTranslator::DETECTED_LANG_CUSTOM_FIELD]
+      # Skip translations for posts that are manually translated using "discourse-x-multilingial-helper" plugin
+      if object.custom_fields["cooked_ru"]
+        if I18n.locale == :en
+          return false
+        elsif I18n.locale == :ru
+          return false
+        end
+      end
 
-      if !detected_lang
-        Jobs.enqueue(:detect_translation, post_id: object.id)
-        false
+      if SiteSetting.translator_enabled_for_guests or scope.current_user.present?
+        # Detect lang if the user is signed in or translation enabled for guests
+        detected_lang = post_custom_fields[::DiscourseTranslator::DETECTED_LANG_CUSTOM_FIELD]
+
+        if !detected_lang
+          Jobs.enqueue(:detect_translation, post_id: object.id)
+          false
+        else
+          detected_lang != "DiscourseTranslator::#{SiteSetting.translator}::SUPPORTED_LANG".constantize[I18n.locale]
+        end
       else
-        detected_lang != "DiscourseTranslator::#{SiteSetting.translator}::SUPPORTED_LANG".constantize[I18n.locale]
+        # Show translation button to guests but ask them to sign in on click
+        true
       end
     end
 

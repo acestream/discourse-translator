@@ -2,6 +2,9 @@ plugins:
   translator_enabled:
     default: false
     client: true
+  translator_enabled_for_guests:
+    default: false
+    client: true
   translator:
     default: 'Microsoft'
     client: true

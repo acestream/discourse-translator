@@ -1,5 +1,7 @@
 # Discourse Translator Plugin
 
-Translate posts on Discourse using Microsoft, Google, Amazon or Yandex translation APIs.
+This is a fork of https://github.com/acestream/discourse-translator
 
-For more information, please see: https://meta.discourse.org/t/discourse-translator/32630
+Changes:
+
+- optionally show translation button to all users
