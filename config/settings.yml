@@ -8,6 +8,9 @@ plugins:
   translator_skip_category_id:
     default: ''
     client: true
+  translator_max_post_length:
+    default: 500
+    client: true
   translator:
     default: 'Microsoft'
     client: true

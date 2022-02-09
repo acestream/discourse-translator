@@ -48,6 +48,11 @@ after_initialize do
       raise Discourse::InvalidParameters.new(:post_id) if post.blank?
       guardian.ensure_can_see!(post)
 
+      if SiteSetting.translator_max_post_length > 0 and post.cooked.length > SiteSetting.translator_max_post_length
+        render_json_error "Post is too long for translation", status: 422
+        return
+      end
+
       begin
         detected_lang, translation = "DiscourseTranslator::#{SiteSetting.translator}".constantize.translate(post)
         render json: { translation: translation, detected_lang: detected_lang }, status: 200
@@ -141,6 +146,10 @@ after_initialize do
         if category_id_list.include? category_id
           return false
         end
+      end
+
+      if SiteSetting.translator_max_post_length > 0 and object.cooked.length > SiteSetting.translator_max_post_length
+        return false
       end
 
       if SiteSetting.translator_enabled_for_guests or scope.current_user.present?
