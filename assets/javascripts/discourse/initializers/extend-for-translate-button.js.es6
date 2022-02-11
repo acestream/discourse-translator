@@ -96,7 +96,7 @@ function initializeTranslation(api) {
     return {
       action,
       title,
-      icon: "globe",
+      icon: "translate", // this icon is added by "discourse-multilingual" plugin
       position: "first",
       className: state.isTranslated ? "translated" : null,
     };
